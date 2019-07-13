@@ -1,0 +1,46 @@
+#!/bin/bash
+DEFCONFIG="imx_v7_var_defconfig"
+DTB_C1="imx6q-var-dart.dtb"
+IMG_C1="uImage"
+
+usage()
+{
+  echo "*************** Error in usage ***************"
+  echo "  ./build clean     - to clean"
+  echo "  ./build configure - to configure linux kernel"
+  echo "  ./build c1       - to build all for c1"
+  echo "  ./build c1dtb    - to build dtb for c1"
+  echo "**********************************************"
+}
+
+source /opt/fslc-framebuffer/2.6.2/environment-setup-armv7at2hf-neon-fslc-linux-gnueabi
+echo "Exported compilation toolchain"
+arm-fslc-linux-gnueabi-gcc -v
+
+if [ $# -gt 0 ];then
+  if [ "$1" = "clean" ];then
+    make clean
+    make distclean
+    rm -rvf $DTB_VAR $DTB_SCM $IMG_VAR $IMG_SCM
+  elif [ "$1" = "menuconfig" ];then
+    make menuconfig
+  elif [ "$1" = "configure" ]; then
+    make mrproper
+    make ARCH=arm $DEFCONFIG
+  elif [ "$1" = "c1" ];then
+    make -j8 LOADADDR=0x10008000 $IMG_C1
+    make -j8 LOADADDR=0x10008000 modules
+    make -j8 $DTB_C1
+    cp -v arch/arm/boot/$IMG_C1 .
+    cp -v arch/arm/boot/dts/$DTB_C1 .
+  elif [ "$1" = "c1dtb" ];then
+    make clean
+    rm -rvf $DTB_C1 $IMG_C1
+    make -j8 $DTB_C1
+    cp -v arch/arm/boot/dts/$DTB_C1 .
+  else 
+    usage
+  fi
+else
+  usage
+fi
