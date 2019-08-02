@@ -8,7 +8,7 @@
 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License along
@@ -33,119 +33,108 @@
 
 #include "mipi_dsi.h"
 
-#define MIPI_DSI_MAX_RET_PACK_SIZE				(0x4)
+#define MIPI_DSI_MAX_RET_PACK_SIZE		(0x4)
 
 #define HX8369BL_MAX_BRIGHT		(255)
 #define HX8369BL_DEF_BRIGHT		(255)
 
-#define HX8369_MAX_DPHY_CLK					(800)
-#define HX8369_ONE_DATA_LANE					(0x1)
-#define HX8369_TWO_DATA_LANE					(0x2)
+#define HX8369_MAX_DPHY_CLK		(800)
+#define HX8369_ONE_DATA_LANE		(0x1)
+#define HX8369_TWO_DATA_LANE		(0x2)
 
-#define HX8369_CMD_SETEXTC					(0xB9)
-#define HX8369_CMD_SETEXTC_LEN					(0x4)
-#define HX8369_CMD_SETEXTC_PARAM_1				(0x6983ff)
+#define HX8369_CMD_SETEXTC		(0xB9)
+#define HX8369_CMD_SETEXTC_LEN		(0x4)
+#define HX8369_CMD_SETEXTC_PARAM_1		(0x6983ff)
 
-#define HX8369_CMD_GETHXID					(0xF4)
-#define HX8369_CMD_GETHXID_LEN					(0x4)
-#define HX8369_ID						(0x69)
-#define HX8369_ID_MASK						(0xFF)
+#define HX8369_CMD_GETHXID		(0xF4)
+#define HX8369_CMD_GETHXID_LEN		(0x4)
+#define HX8369_ID		(0x69)
+#define HX8369_ID_MASK		(0xFF)
 
-#define HX8369_CMD_SETDISP					(0xB2)
-#define HX8369_CMD_SETDISP_LEN					(16)
-#define HX8369_CMD_SETDISP_1_HALT				(0x00)
-#define HX8369_CMD_SETDISP_2_RES_MODE				(0x23)
-#define HX8369_CMD_SETDISP_3_BP					(0x03)
-#define HX8369_CMD_SETDISP_4_FP					(0x03)
-#define HX8369_CMD_SETDISP_5_SAP				(0x70)
-#define HX8369_CMD_SETDISP_6_GENON				(0x00)
-#define HX8369_CMD_SETDISP_7_GENOFF				(0xff)
-#define HX8369_CMD_SETDISP_8_RTN				(0x00)
-#define HX8369_CMD_SETDISP_9_TEI				(0x00)
-#define HX8369_CMD_SETDISP_10_TEP_UP				(0x00)
-#define HX8369_CMD_SETDISP_11_TEP_LOW				(0x00)
-#define HX8369_CMD_SETDISP_12_BP_PE				(0x03)
-#define HX8369_CMD_SETDISP_13_FP_PE				(0x03)
-#define HX8369_CMD_SETDISP_14_RTN_PE				(0x00)
-#define HX8369_CMD_SETDISP_15_GON				(0x01)
+/* C0 Display register sequence */
+#define HX8369_CMD_PWR_CTRL1		(0xC0)
+#define HX8369_CMD_PWR_CTRL1_SIZE		(3)
+#define HX8369_CMD_PWR_CTRL1_DATA1		(0xB0B0)
 
-#define HX8369_CMD_SETCYC					(0xB4)
-#define HX8369_CMD_SETCYC_LEN					(6)
-#define HX8369_CMD_SETCYC_PARAM_1				(0x5f1d00)
-#define HX8369_CMD_SETCYC_PARAM_2				(0x060e)
+#define HX8369_CMD_PWR_CTRL2		(0xC1)
+#define HX8369_CMD_PWR_CTRL2_SIZE		(2)
+#define HX8369_CMD_PWR_CTRL2_DATA1		(0x45)
 
-#define HX8369_CMD_SETGIP					(0xD5)
-#define HX8369_CMD_SETGIP_LEN					(27)
-#define HX8369_CMD_SETGIP_PARAM_1				(0x030400)
-#define HX8369_CMD_SETGIP_PARAM_2				(0x1c050100)
-#define HX8369_CMD_SETGIP_PARAM_3				(0x00030170)
-#define HX8369_CMD_SETGIP_PARAM_4				(0x51064000)
-#define HX8369_CMD_SETGIP_PARAM_5				(0x41000007)
-#define HX8369_CMD_SETGIP_PARAM_6				(0x07075006)
-#define HX8369_CMD_SETGIP_PARAM_7				(0x040f)
+#define HX8369_CMD_VCOM_CTRL		(0xC5)
+#define HX8369_CMD_VCOM_CTRL_SIZE		(4)
+#define HX8369_CMD_VCOM_CTRL_DATA1		(0x802800)
 
-#define HX8369_CMD_SETPOWER					(0xB1)
-#define HX8369_CMD_SETPOWER_LEN					(20)
-#define HX8369_CMD_SETPOWER_PARAM_1				(0x340001)
-#define HX8369_CMD_SETPOWER_PARAM_2				(0x0f0f0006)
-#define HX8369_CMD_SETPOWER_PARAM_3				(0x3f3f322a)
-#define HX8369_CMD_SETPOWER_PARAM_4				(0xe6013a07)
-#define HX8369_CMD_SETPOWER_PARAM_5				(0xe6e6e6e6)
+#define HX8369_CMD_MEM_CTRL		(0x36)
+#define HX8369_CMD_MEM_CTRL_SIZE		(2)
+#define HX8369_CMD_MEM_CTRL_DATA1		(0x48)
 
-#define HX8369_CMD_SETVCOM					(0xB6)
-#define HX8369_CMD_SETVCOM_LEN					(3)
-#define HX8369_CMD_SETVCOM_PARAM_1				(0x5656)
+#define HX8369_CMD_SETPIXEL_FMT		(0x3A)
+#define HX8369_CMD_SETPIXEL_FMT_SIZE		(2)
+#define HX8369_CMD_SETPIXEL_FMT_24BPP		(0x77)
+#define HX8369_CMD_SETPIXEL_FMT_18BPP		(0x66)
+#define HX8369_CMD_SETPIXEL_FMT_16BPP		(0x55)
 
-#define HX8369_CMD_SETPANEL					(0xCC)
-#define HX8369_CMD_SETPANEL_PARAM_1				(0x02)
+#define HX8369_CMD_DISP_INV_ON_CTRL		(0x21)
 
-#define HX8369_CMD_SETGAMMA					(0xE0)
-#define HX8369_CMD_SETGAMMA_LEN					(35)
-#define HX8369_CMD_SETGAMMA_PARAM_1				(0x221d00)
-#define HX8369_CMD_SETGAMMA_PARAM_2				(0x2e3f3d38)
-#define HX8369_CMD_SETGAMMA_PARAM_3				(0x0f0d064a)
-#define HX8369_CMD_SETGAMMA_PARAM_4				(0x16131513)
-#define HX8369_CMD_SETGAMMA_PARAM_5				(0x1d001910)
-#define HX8369_CMD_SETGAMMA_PARAM_6				(0x3f3d3822)
-#define HX8369_CMD_SETGAMMA_PARAM_7				(0x0d064a2e)
-#define HX8369_CMD_SETGAMMA_PARAM_8				(0x1315130f)
-#define HX8369_CMD_SETGAMMA_PARAM_9				(0x191016)
+#define HX8369_CMD_FRAME_RATE_CTRL		(0xB1)
+#define HX8369_CMD_FRAME_RATE_CTRL_SIZE		(2)
+#define HX8369_CMD_FRAME_RATE_CTRL_DATA1		(0xA0)
 
-#define HX8369_CMD_SETMIPI					(0xBA)
-#define HX8369_CMD_SETMIPI_LEN					(14)
-#define HX8369_CMD_SETMIPI_PARAM_1				(0xc6a000)
-#define HX8369_CMD_SETMIPI_PARAM_2				(0x10000a00)
-#define HX8369_CMD_SETMIPI_ONELANE				(0x10 << 24)
-#define HX8369_CMD_SETMIPI_TWOLANE				(0x11 << 24)
-#define HX8369_CMD_SETMIPI_PARAM_3				(0x00026f30)
-#define HX8369_CMD_SETMIPI_PARAM_4				(0x4018)
+#define HX8369_CMD_DISP_INV_CTRL		(0xB4)
+#define HX8369_CMD_DISP_INV_CTRL_SIZE		(2)
+#define HX8369_CMD_DISP_INV_CTRL_DATA1		(0x02)
 
-#define HX8369_CMD_SETPIXEL_FMT					(0x3A)
-#define HX8369_CMD_SETPIXEL_FMT_24BPP				(0x77)
-#define HX8369_CMD_SETPIXEL_FMT_18BPP				(0x66)
-#define HX8369_CMD_SETPIXEL_FMT_16BPP				(0x55)
+#define HX8369_CMD_PORCH_CONTROL		(0xB5)
+#define HX8369_CMD_PORCH_CONTROL_LEN		(5)
+#define HX8369_CMD_PORCH_CONTROL_PARAM_1		(0x030202)
+#define HX8369_CMD_PORCH_CONTROL_PARAM_2		(0x03)
 
-#define HX8369_CMD_SETCLUMN_ADDR				(0x2A)
-#define HX8369_CMD_SETCLUMN_ADDR_LEN				(5)
-#define HX8369_CMD_SETCLUMN_ADDR_PARAM_1			(0xdf0000)
-#define HX8369_CMD_SETCLUMN_ADDR_PARAM_2			(0x01)
+#define HX8369_CMD_DISP_FUNCT_CTRL		(0xB6)
+#define HX8369_CMD_DISP_FUNCT_CTRL_SIZE		(4)
+#define HX8369_CMD_DISP_FUNCT_CTRL_DATA1		(0x3B0200)
 
-#define HX8369_CMD_SETPAGE_ADDR					(0x2B)
-#define HX8369_CMD_SETPAGE_ADDR_LEN				(5)
-#define HX8369_CMD_SETPAGE_ADDR_PARAM_1				(0x1f0000)
-#define HX8369_CMD_SETPAGE_ADDR_PARAM_2				(0x03)
+#define HX8369_CMD_SET_IMG_CTRL		(0xE9)
+#define HX8369_CMD_SET_IMG_CTRL_SIZE		(2)
+#define HX8369_CMD_SET_IMG_CTRL_DATA1		(0x00)
+
+#define HX8369_CMD_ADJUST_CTRL		(0xF7)
+#define HX8369_CMD_ADJUST_CTRL_SIZE		(5)
+#define HX8369_CMD_ADJUST_CTRL_DATA1		(0x2C51A9)
+#define HX8369_CMD_ADJUST_CTRL_DATA2		(0x02)
+
+#define HX8369_CMD_SET_PASSIVE_GAMMA		(0xE0)
+#define HX8369_CMD_SET_PASSIVE_GAMMA_LEN		(16)
+#define HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_1		(0x0A0700)
+#define HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_2		(0x26071106)
+#define HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_3		(0x17093CBD)
+#define HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_4		(0x0F22260A)
+
+#define HX8369_CMD_SET_NEGATIVE_GAMMA		(0xE1)
+#define HX8369_CMD_SET_NEGATIVE_GAMMA_LEN		(16)
+#define HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_1		(0x312200)
+#define HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_2		(0x4C0C1C0C)
+#define HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_3		(0x160B6276)
+#define HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_4		(0x0F39390F)
+
+#define HX8369_CMD_SLEEP_OUT_CTRL		(0x11)
+
+#define HX8369_CMD_DISP_ON_CTRL		(0x29)
+
+#define HX8369_CMD_MEM_WRITE_CTRL		(0x2C)
 
 #define HX8369_CMD_WRT_DISP_BRIGHT				(0x51)
 #define HX8369_CMD_WRT_DISP_BRIGHT_PARAM_1			(0xFF)
 
-#define HX8369_CMD_WRT_CABC_MIN_BRIGHT				(0x5E)
-#define HX8369_CMD_WRT_CABC_MIN_BRIGHT_PARAM_1			(0x20)
-
-#define HX8369_CMD_WRT_CABC_CTRL				(0x55)
-#define HX8369_CMD_WRT_CABC_CTRL_PARAM_1			(0x1)
-
-#define HX8369_CMD_WRT_CTRL_DISP				(0x53)
-#define HX8369_CMD_WRT_CTRL_DISP_PARAM_1			(0x24)
+#define HX8359_REFRESH		(64)
+#define HX8359_XRES		(320)
+#define HX8359_YRES		(432)
+#define HX8359_PIXCLOCK		(91895)
+#define HX8359_LEFT_MARGIN		(20)
+#define HX8359_RIGHT_MARGIN		(5)
+#define HX8359_UPPER_MARGIN		(30)
+#define HX8359_LOWER_MARGIN		(26)
+#define HX8359_HSYNC_LEN		(2)
+#define HX8359_VSYNC_LEN		(2)
 
 #define CHECK_RETCODE(ret)					\
 do {								\
@@ -162,22 +151,30 @@ static int mipid_init_backlight(struct mipi_dsi_info *mipi_dsi);
 
 static struct fb_videomode truly_lcd_modedb[] = {
 	{
-	 "TRULY-WVGA", 64, 480, 800, 37880,
-	 8, 8,
-	 6, 6,
-	 8, 6,
-	 FB_SYNC_OE_LOW_ACT,
-	 FB_VMODE_NONINTERLACED,
-	 0,
+		"TRULY-WVGA",							 /* name										 */
+		HX8359_REFRESH,						 /* refresh / frame rate		 */
+		HX8359_XRES,								/* resolution							 */
+		HX8359_YRES,								/* resolution							 */
+		HX8359_PIXCLOCK,						/* pixel clock							*/
+		HX8359_LEFT_MARGIN,				 /* l/r margin							 */
+		HX8359_RIGHT_MARGIN,				/* l/r margin							 */
+		HX8359_UPPER_MARGIN,				/* u/l margin							 */
+		HX8359_LOWER_MARGIN,				/* u/l margin							 */
+		HX8359_HSYNC_LEN,					 /* hsync/vsync length			 */
+		HX8359_VSYNC_LEN,					 /* hsync/vsync length			 */
+		FB_SYNC_OE_LOW_ACT,				 /* sync										 */
+		FB_VMODE_NONINTERLACED,		 /* vmode										*/
+		0,													/* flag FB_MODE_IS_DETAILED */
 	},
 };
 
 static struct mipi_lcd_config lcd_config = {
-	.virtual_ch		= 0x0,
-	.data_lane_num  = HX8369_TWO_DATA_LANE,
-	.max_phy_clk    = HX8369_MAX_DPHY_CLK,
-	.dpi_fmt		= MIPI_RGB888,
+	.virtual_ch	= 0x0,
+	.data_lane_num	= HX8369_ONE_DATA_LANE,
+	.max_phy_clk		= HX8369_MAX_DPHY_CLK,
+	.dpi_fmt	= MIPI_RGB666_PACKED,
 };
+
 void mipid_hx8369_get_lcd_videomode(struct fb_videomode **mode, int *size,
 		struct mipi_lcd_config **data)
 {
@@ -191,121 +188,35 @@ int mipid_hx8369_lcd_setup(struct mipi_dsi_info *mipi_dsi)
 	u32 buf[DSI_CMD_BUF_MAXSIZE];
 	int err;
 
-	dev_dbg(&mipi_dsi->pdev->dev, "MIPI DSI LCD setup.\n");
-	buf[0] = HX8369_CMD_SETEXTC | (HX8369_CMD_SETEXTC_PARAM_1 << 8);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE,
-					buf, HX8369_CMD_SETEXTC_LEN);
-	CHECK_RETCODE(err);
-	buf[0] = MIPI_DSI_MAX_RET_PACK_SIZE;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
-				MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE,
-				buf, 0);
-	CHECK_RETCODE(err);
-	buf[0] = HX8369_CMD_GETHXID;
-	err =  mipi_dsi->mipi_dsi_pkt_read(mipi_dsi,
-			MIPI_DSI_GENERIC_READ_REQUEST_2_PARAM,
-			buf, HX8369_CMD_GETHXID_LEN);
-	if (!err && ((buf[0] & HX8369_ID_MASK) == HX8369_ID)) {
-		dev_info(&mipi_dsi->pdev->dev,
-				"MIPI DSI LCD ID:0x%x.\n", buf[0]);
-	} else {
-		dev_err(&mipi_dsi->pdev->dev,
-			"mipi_dsi_pkt_read err:%d, data:0x%x.\n",
-			err, buf[0]);
-		dev_info(&mipi_dsi->pdev->dev,
-				"MIPI DSI LCD not detected!\n");
-		return err;
-	}
+	/* preapre mipi dsi display setup */
+	dev_info(&mipi_dsi->pdev->dev, "C0 MIPI DSI LCD setup\n");
 
-	/* set LCD resolution as 480RGBx800, DPI interface,
-	 * display operation mode: RGB data bypass GRAM mode.
-	 */
-	buf[0] = HX8369_CMD_SETDISP | (HX8369_CMD_SETDISP_1_HALT << 8) |
-			(HX8369_CMD_SETDISP_2_RES_MODE << 16) |
-			(HX8369_CMD_SETDISP_3_BP << 24);
-	buf[1] = HX8369_CMD_SETDISP_4_FP | (HX8369_CMD_SETDISP_5_SAP << 8) |
-			 (HX8369_CMD_SETDISP_6_GENON << 16) |
-			 (HX8369_CMD_SETDISP_7_GENOFF << 24);
-	buf[2] = HX8369_CMD_SETDISP_8_RTN | (HX8369_CMD_SETDISP_9_TEI << 8) |
-			 (HX8369_CMD_SETDISP_10_TEP_UP << 16) |
-			 (HX8369_CMD_SETDISP_11_TEP_LOW << 24);
-	buf[3] = HX8369_CMD_SETDISP_12_BP_PE |
-			(HX8369_CMD_SETDISP_13_FP_PE << 8) |
-			 (HX8369_CMD_SETDISP_14_RTN_PE << 16) |
-			 (HX8369_CMD_SETDISP_15_GON << 24);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE,
-						buf, HX8369_CMD_SETDISP_LEN);
-	CHECK_RETCODE(err);
-
-	/* Set display waveform cycle */
-	buf[0] = HX8369_CMD_SETCYC | (HX8369_CMD_SETCYC_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETCYC_PARAM_2;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE,
-						buf, HX8369_CMD_SETCYC_LEN);
-	CHECK_RETCODE(err);
-
-	/* Set GIP timing output control */
-	buf[0] = HX8369_CMD_SETGIP | (HX8369_CMD_SETGIP_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETGIP_PARAM_2;
-	buf[2] = HX8369_CMD_SETGIP_PARAM_3;
-	buf[3] = HX8369_CMD_SETGIP_PARAM_4;
-	buf[4] = HX8369_CMD_SETGIP_PARAM_5;
-	buf[5] = HX8369_CMD_SETGIP_PARAM_6;
-	buf[6] = HX8369_CMD_SETGIP_PARAM_7;
+	/* Update the C0 display update seqence from here */
+	/* Power control - 0xC0 Power control 1 */
+	buf[0] = HX8369_CMD_PWR_CTRL1 | (HX8369_CMD_PWR_CTRL1_DATA1 << 8);
 	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
-				HX8369_CMD_SETGIP_LEN);
+		HX8369_CMD_PWR_CTRL1_SIZE);
 	CHECK_RETCODE(err);
 
-	/* Set power: standby, DC etc. */
-	buf[0] = HX8369_CMD_SETPOWER | (HX8369_CMD_SETPOWER_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETPOWER_PARAM_2;
-	buf[2] = HX8369_CMD_SETPOWER_PARAM_3;
-	buf[3] = HX8369_CMD_SETPOWER_PARAM_4;
-	buf[4] = HX8369_CMD_SETPOWER_PARAM_5;
+	/* Power control - 0xC1 Power control 2 */
+	buf[0] = HX8369_CMD_PWR_CTRL2 | (HX8369_CMD_PWR_CTRL2_DATA1 << 8);
 	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
-				HX8369_CMD_SETPOWER_LEN);
+		HX8369_CMD_PWR_CTRL2_SIZE);
 	CHECK_RETCODE(err);
 
-	/* Set VCOM voltage. */
-	buf[0] = HX8369_CMD_SETVCOM | (HX8369_CMD_SETVCOM_PARAM_1 << 8);
+	/*	Set VCOM control - 0xC5 VCOM control */
+	buf[0] = HX8369_CMD_VCOM_CTRL | (HX8369_CMD_VCOM_CTRL_DATA1 << 8);
 	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
-				HX8369_CMD_SETVCOM_LEN);
+		HX8369_CMD_VCOM_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	/* Set Panel: BGR/RGB or Inversion. */
-	buf[0] = HX8369_CMD_SETPANEL | (HX8369_CMD_SETPANEL_PARAM_1 << 8);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
-		MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM, buf, 0);
-	CHECK_RETCODE(err);
-
-	/* Set gamma curve related setting */
-	buf[0] = HX8369_CMD_SETGAMMA | (HX8369_CMD_SETGAMMA_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETGAMMA_PARAM_2;
-	buf[2] = HX8369_CMD_SETGAMMA_PARAM_3;
-	buf[3] = HX8369_CMD_SETGAMMA_PARAM_4;
-	buf[4] = HX8369_CMD_SETGAMMA_PARAM_5;
-	buf[5] = HX8369_CMD_SETGAMMA_PARAM_6;
-	buf[6] = HX8369_CMD_SETGAMMA_PARAM_7;
-	buf[7] = HX8369_CMD_SETGAMMA_PARAM_8;
-	buf[8] = HX8369_CMD_SETGAMMA_PARAM_9;
+	/* 0x36 Memory access control */
+	buf[0] = HX8369_CMD_MEM_CTRL | (HX8369_CMD_MEM_CTRL_DATA1 << 8);
 	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
-				HX8369_CMD_SETGAMMA_LEN);
+		HX8369_CMD_MEM_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	/* Set MIPI: DPHYCMD & DSICMD, data lane number */
-	buf[0] = HX8369_CMD_SETMIPI | (HX8369_CMD_SETMIPI_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETMIPI_PARAM_2;
-	buf[2] = HX8369_CMD_SETMIPI_PARAM_3;
-	if (lcd_config.data_lane_num == HX8369_ONE_DATA_LANE)
-		buf[2] |= HX8369_CMD_SETMIPI_ONELANE;
-	else
-		buf[2] |= HX8369_CMD_SETMIPI_TWOLANE;
-	buf[3] = HX8369_CMD_SETMIPI_PARAM_4;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
-				HX8369_CMD_SETMIPI_LEN);
-	CHECK_RETCODE(err);
-
-	/* Set pixel format:24bpp */
+	/* Set pixel format:24bpp - 0x3A Pixel format */
 	buf[0] = HX8369_CMD_SETPIXEL_FMT;
 	switch (lcd_config.dpi_fmt) {
 	case MIPI_RGB565_PACKED:
@@ -327,60 +238,103 @@ int mipid_hx8369_lcd_setup(struct mipi_dsi_info *mipi_dsi)
 		buf[0] |= (HX8369_CMD_SETPIXEL_FMT_24BPP << 8);
 		break;
 	}
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM,
-			buf, 0);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
+		MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM, buf, 0);
 	CHECK_RETCODE(err);
 
-	/* Set column address: 0~479 */
-	buf[0] = HX8369_CMD_SETCLUMN_ADDR |
-		(HX8369_CMD_SETCLUMN_ADDR_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETCLUMN_ADDR_PARAM_2;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE,
-				buf, HX8369_CMD_SETCLUMN_ADDR_LEN);
+	/* Enter the invert mode - 0x21 Display inversion ON */
+	buf[0] = MIPI_DCS_ENTER_INVERT_MODE;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
+		MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM, buf, 0);
 	CHECK_RETCODE(err);
 
-	/* Set page address: 0~799 */
-	buf[0] = HX8369_CMD_SETPAGE_ADDR |
-		(HX8369_CMD_SETPAGE_ADDR_PARAM_1 << 8);
-	buf[1] = HX8369_CMD_SETPAGE_ADDR_PARAM_2;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE,
-					buf, HX8369_CMD_SETPAGE_ADDR_LEN);
+	/* 0xB1 Frame Rate Control */
+	buf[0] = HX8369_CMD_FRAME_RATE_CTRL | (HX8369_CMD_FRAME_RATE_CTRL_DATA1 << 8);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_FRAME_RATE_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	/* Set display brightness related */
-	buf[0] = HX8369_CMD_WRT_DISP_BRIGHT |
-			(HX8369_CMD_WRT_DISP_BRIGHT_PARAM_1 << 8);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM,
-		buf, 0);
+	/* 0xB4 Display Inversion Control */
+	buf[0] = HX8369_CMD_DISP_INV_CTRL | (HX8369_CMD_DISP_INV_CTRL_DATA1 << 8);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_DISP_INV_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	buf[0] = HX8369_CMD_WRT_CABC_CTRL |
-		(HX8369_CMD_WRT_CABC_CTRL_PARAM_1 << 8);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM,
-		buf, 0);
+	/* 0xB5 Display porch Control */
+	buf[0] = HX8369_CMD_PORCH_CONTROL | (HX8369_CMD_PORCH_CONTROL_PARAM_1 << 8);
+	buf[1] = HX8369_CMD_PORCH_CONTROL_PARAM_2;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_PORCH_CONTROL_LEN);
+
+	/* 0xB6 Display Function Control */
+	buf[0] = HX8369_CMD_DISP_FUNCT_CTRL | (HX8369_CMD_DISP_FUNCT_CTRL_DATA1 << 8);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_DISP_FUNCT_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	buf[0] = HX8369_CMD_WRT_CTRL_DISP |
-		(HX8369_CMD_WRT_CTRL_DISP_PARAM_1 << 8);
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM,
-		buf, 0);
+	/* 0xE9 Set Image */
+	buf[0] = HX8369_CMD_SET_IMG_CTRL | (HX8369_CMD_SET_IMG_CTRL_DATA1 << 8);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_SET_IMG_CTRL_SIZE);
 	CHECK_RETCODE(err);
 
-	/* exit sleep mode and set display on */
+	/* 0xF7 Adjust Control */
+	buf[0] = HX8369_CMD_ADJUST_CTRL | (HX8369_CMD_ADJUST_CTRL_DATA1 << 8);
+	buf[1] = HX8369_CMD_ADJUST_CTRL_DATA2;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_ADJUST_CTRL_SIZE);
+	CHECK_RETCODE(err);
+
+	/* Set gamma curve related setting - 0xE0 Passive Gamma Control */
+	buf[0] = HX8369_CMD_SET_PASSIVE_GAMMA |
+			(HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_1 << 8);
+	buf[1] = HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_2;
+	buf[2] = HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_3;
+	buf[3] = HX8369_CMD_SET_PASSIVE_GAMMA_PARAM_4;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_SET_PASSIVE_GAMMA_LEN);
+	CHECK_RETCODE(err);
+
+	/* Set gamma curve related setting - 0xE1 Negative Gamma Control */
+	buf[0] = HX8369_CMD_SET_NEGATIVE_GAMMA |
+			(HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_1 << 8);
+	buf[1] = HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_2;
+	buf[2] = HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_3;
+	buf[3] = HX8369_CMD_SET_NEGATIVE_GAMMA_PARAM_4;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_LONG_WRITE, buf,
+		HX8369_CMD_SET_NEGATIVE_GAMMA_LEN);
+	CHECK_RETCODE(err);
+
+	/* Exit the sleep mode - 0x11 Sleep Out control */
 	buf[0] = MIPI_DCS_EXIT_SLEEP_MODE;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM,
-		buf, 0);
-	CHECK_RETCODE(err);
-	/* To allow time for the supply voltages
-	 * and clock circuits to stabilize.
-	 */
-	msleep(5);
-	buf[0] = MIPI_DCS_SET_DISPLAY_ON;
-	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi, MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM,
-		buf, 0);
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
+		MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM, buf, 0);
 	CHECK_RETCODE(err);
 
-	err = mipid_init_backlight(mipi_dsi);
+	// /* To allow 120 mSec time for the supply voltages
+	//	* and clock circuits to stabilize.
+	//	*/
+	msleep(120);
+
+	/* turn on the disply - 0x29 Display ON */
+	buf[0] = MIPI_DCS_SET_DISPLAY_ON;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
+		MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM, buf, 0);
+	CHECK_RETCODE(err);
+
+	// /* To allow 10 mSec time after display on
+	//	*/
+	msleep(10);
+
+	/* configure the memory - 0x2C Memory Write */
+	buf[0] = MIPI_DCS_WRITE_MEMORY_START;
+	err = mipi_dsi->mipi_dsi_pkt_write(mipi_dsi,
+		MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM, buf, 0);
+	CHECK_RETCODE(err);
+
+	/* power on the backlight */
+	// err = mipid_init_backlight(mipi_dsi);
+	dev_info(&mipi_dsi->pdev->dev, "C0 MIPI DSI LCD setup Completed\n");
 	return err;
 }
 
@@ -392,7 +346,7 @@ static int mipid_bl_update_status(struct backlight_device *bl)
 	struct mipi_dsi_info *mipi_dsi = bl_get_data(bl);
 
 	if (bl->props.power != FB_BLANK_UNBLANK ||
-	    bl->props.fb_blank != FB_BLANK_UNBLANK)
+			bl->props.fb_blank != FB_BLANK_UNBLANK)
 		brightness = 0;
 
 	buf = HX8369_CMD_WRT_DISP_BRIGHT |
