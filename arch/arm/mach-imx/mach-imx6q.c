@@ -233,11 +233,15 @@ put_node:
 static void __init imx6q_csi_mux_init(void)
 {
 	/*
-	 * MX6Q SabreSD board:
+	 * DART-MX6 board:
+	 * IPU2 CSI1 connects to parallel interface.
+	 * Set GPR1 bit 20 to 0x1.
+	 *
+	 * MX6Q SabreSD/VAR-SOM-MX6 boards:
 	 * IPU1 CSI0 connects to parallel interface.
 	 * Set GPR1 bit 19 to 0x1.
 	 *
-	 * MX6DL SabreSD board:
+	 * MX6DL SabreSD/VAR-SOM-MX6 boards:
 	 * IPU1 CSI0 connects to parallel interface.
 	 * Set GPR13 bit 0-2 to 0x4.
 	 * IPU1 CSI1 connects to MIPI CSI2 virtual channel 1.
@@ -247,14 +251,21 @@ static void __init imx6q_csi_mux_init(void)
 
 	gpr = syscon_regmap_lookup_by_compatible("fsl,imx6q-iomuxc-gpr");
 	if (!IS_ERR(gpr)) {
-		if (of_machine_is_compatible("fsl,imx6q-sabresd") ||
-			of_machine_is_compatible("fsl,imx6q-sabreauto") ||
-			of_machine_is_compatible("fsl,imx6qp-sabresd") ||
-			of_machine_is_compatible("fsl,imx6qp-sabreauto"))
-			regmap_update_bits(gpr, IOMUXC_GPR1, 1 << 19, 1 << 19);
-		else if (of_machine_is_compatible("fsl,imx6dl-sabresd") ||
-			 of_machine_is_compatible("fsl,imx6dl-sabreauto"))
-			regmap_update_bits(gpr, IOMUXC_GPR13, 0x3F, 0x0C);
+			if (of_machine_is_compatible("fsl,imx6q-var-dart") ||
+			 of_machine_is_compatible("variscite,imx6q-var-dart")) {
+				pr_info("imx6q-var-dart IOMUXC_GPR1 20\n");
+				regmap_update_bits(gpr, IOMUXC_GPR1, 1 << 20, 1 << 20);
+			} else if (of_machine_is_compatible("fsl,imx6q-sabresd") ||
+					of_machine_is_compatible("fsl,imx6q-sabreauto") ||
+					of_machine_is_compatible("fsl,imx6q-var-som")) {
+				pr_info("Non DART Device IOMUXC_GPR1 19\n");
+				regmap_update_bits(gpr, IOMUXC_GPR1, 1 << 19, 1 << 19);
+			} else if (of_machine_is_compatible("fsl,imx6dl-sabresd") ||
+					of_machine_is_compatible("fsl,imx6dl-sabreauto") ||
+					of_machine_is_compatible("fsl,imx6dl-var-som")) {
+				pr_info("Non DART Device IOMUXC_GPR13\n");
+				regmap_update_bits(gpr, IOMUXC_GPR13, 0x3F, 0x0C);
+			}
 	} else {
 		pr_err("%s(): failed to find fsl,imx6q-iomux-gpr regmap\n",
 		       __func__);
