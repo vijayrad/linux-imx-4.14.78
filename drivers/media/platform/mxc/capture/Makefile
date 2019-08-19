@@ -11,6 +11,10 @@ obj-$(CONFIG_MXC_VADC) += mxc_vadc.o
 obj-$(CONFIG_MXC_MIPI_CSI) += mxc_mipi_csi.o
 
 # Used for iMX 6QDL
+ov10635_camera-objs := ov10635.o
+obj-$(CONFIG_MXC_CAMERA_OV10635) += ov10635_camera.o
+
+# Used for iMX 6QDL
 ov5640_camera_int-objs := ov5640.o
 obj-$(CONFIG_MXC_CAMERA_OV5640) += ov5640_camera_int.o
 
