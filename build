@@ -34,7 +34,7 @@ if [ $# -gt 0 ];then
     cp -v arch/arm/boot/$IMG_C1 .
     cp -v arch/arm/boot/dts/$DTB_C1 .
   elif [ "$1" = "c1dtb" ];then
-    rm -rvf $DTB_C1 $IMG_C1
+    rm -rvf $DTB_C1
     make -j8 $DTB_C1
     cp -v arch/arm/boot/dts/$DTB_C1 .
   else 
