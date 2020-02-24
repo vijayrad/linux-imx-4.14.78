@@ -460,7 +460,7 @@ static void __init init_ipu_clk(void __iomem *anatop_base)
 	val |= (0xf << 24);
 	writel_relaxed(val, ccm_base + CCM_CCGR0);
 }
-
+#if 0
 static void disable_anatop_clocks(void __iomem *anatop_base)
 {
 	unsigned int reg;
@@ -485,7 +485,7 @@ static void disable_anatop_clocks(void __iomem *anatop_base)
 	reg &= ~PLL_ENABLE;
 	writel_relaxed(reg, anatop_base + CCM_ANALOG_PLL_VIDEO);
 }
-
+#endif //Vijay
 static void __init imx6q_clocks_init(struct device_node *ccm_node)
 {
 	struct device_node *np;
@@ -667,7 +667,7 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
 		clk[IMX6QDL_CLK_LDB_DI0_SEL]      = imx_clk_mux_flags("ldb_di0_sel", base + 0x2c, 9,  3, ldb_di_sels,      ARRAY_SIZE(ldb_di_sels), CLK_SET_RATE_PARENT);
 		clk[IMX6QDL_CLK_LDB_DI1_SEL]      = imx_clk_mux_flags("ldb_di1_sel", base + 0x2c, 12, 3, ldb_di_sels,      ARRAY_SIZE(ldb_di_sels), CLK_SET_RATE_PARENT);
 	} else {
-		disable_anatop_clocks(anatop_base);
+		//disable_anatop_clocks(anatop_base);//Vijay
 
 		imx6q_mmdc_ch1_mask_handshake(base);
 		/*
